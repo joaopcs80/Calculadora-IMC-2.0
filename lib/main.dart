@@ -12,7 +12,22 @@ class CalculadoraIMCApp extends StatelessWidget {
     return MaterialApp(
       title: 'Calculadora IMC',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        inputDecorationTheme: const InputDecorationTheme(
+          border: OutlineInputBorder(),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.teal, width: 2.0),
+          ),
+          labelStyle: TextStyle(color: Colors.teal),
+        ),
+        buttonTheme: const ButtonThemeData(
+          buttonColor: Colors.teal,
+          textTheme: ButtonTextTheme.primary,
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black54),
+          bodyMedium: TextStyle(color: Colors.black54),
+          headlineSmall: TextStyle(color: Colors.teal),
+        ),
       ),
       home: CalculadoraIMCPage(),
     );
@@ -29,6 +44,7 @@ class _CalculadoraIMCPageState extends State<CalculadoraIMCPage> {
   final _pesoController = TextEditingController();
   final _alturaController = TextEditingController();
   String _resultado = '';
+  List<Map<String, String>> _resultados = [];
   
   void _calcularIMC() {
     final nome = _nomeController.text;
@@ -61,8 +77,20 @@ class _CalculadoraIMCPageState extends State<CalculadoraIMCPage> {
     final classificacao = pessoa.classificacaoIMC(imc);
 
     setState(() {
-      _resultado = 'Nome: $nome\nIMC: ${imc.toStringAsFixed(2)}\nClassificação: $classificacao';
+      _resultado = '';
+      _resultados.insert(0, {
+        'Nome': nome,
+        'IMC': imc.toStringAsFixed(2),
+        'Classificação': classificacao,
+      });
     });
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ResultadosPage(resultados: _resultados),
+      ),
+    );
   }
 
   @override
@@ -79,16 +107,21 @@ class _CalculadoraIMCPageState extends State<CalculadoraIMCPage> {
             TextField(
               controller: _nomeController,
               decoration: InputDecoration(labelText: 'Nome'),
+              style: const TextStyle(color: Colors.teal),
             ),
+            SizedBox(height: 10),
             TextField(
               controller: _pesoController,
               decoration: InputDecoration(labelText: 'Peso (kg)'),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
+              style: const TextStyle(color: Colors.teal),
             ),
+            SizedBox(height: 10),
             TextField(
               controller: _alturaController,
               decoration: InputDecoration(labelText: 'Altura (m)'),
               keyboardType: TextInputType.numberWithOptions(decimal: true),
+              style: const TextStyle(color: Colors.teal),
             ),
             SizedBox(height: 20),
             ElevatedButton(
@@ -96,11 +129,64 @@ class _CalculadoraIMCPageState extends State<CalculadoraIMCPage> {
               child: Text('Calcular IMC'),
             ),
             SizedBox(height: 20),
-            Text(
-              _resultado,
-              textAlign: TextAlign.center,
-            ),
+            if (_resultado.isNotEmpty) 
+              Text(
+                _resultado,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.red),
+                textAlign: TextAlign.center,
+              ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class ResultadosPage extends StatelessWidget {
+  final List<Map<String, String>> resultados;
+
+  ResultadosPage({required this.resultados});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Resultados'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+          ),
+          itemCount: resultados.length,
+          itemBuilder: (context, index) {
+            final resultado = resultados[index];
+            return Card(
+              color: Colors.teal[50],
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: resultado.entries.map((entry) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Text(
+                        '${entry.key}: ${entry.value}',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.teal[800]),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
