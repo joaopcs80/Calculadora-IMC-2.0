@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/class/validacoes.dart';
+import '../lib/process/validacoes.dart';
 
 void main() {
   group('Validações', () {

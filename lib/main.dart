@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'class/pessoa.dart'; 
-import 'class/validacoes.dart'; 
+import 'process/validacoes.dart'; 
 
 void main() {
   runApp(CalculadoraIMCApp());
